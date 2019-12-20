@@ -195,4 +195,7 @@
                             (do (println (get-in state [:items exkey :desc]))
                                 (recur state))))
                    (= choice "Q")
-                       (println "Thanks for playing!")))))))
+                       (println "Thanks for playing!")
+                   :else
+                       (do (println "Invalid input, go back")
+                           (recur state))))))))
