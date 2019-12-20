@@ -18,19 +18,120 @@
     (let [pick (rand-int max)]
         (if (exclude pick) (rand-unique max exclude) pick)))
 
+
+
+
+
+
+
+(def grave-maps
+ {:gorgeous-arch {:desc "This is a really gorgeous arch, possibly too gorgeous to be the entrance of a grave."
+          :title "under the arch"
+          :dir {:east :foyer}
+          :contents #{:raw-egg}}
+  :foyer {:desc "A very luxurious foyer. We can convey that the owner is some kind of emperor. There's ladder to go down to somewhere."
+          :title "in the foyer"
+          :dir {:west :gorgeous-arch
+                :south :underground-lake}
+          :contents #{}}
+  :underground-lake {:desc "Walking down the floor, we see a lake underground. I can see a huge shadow under the water."
+          :title "in front of the lake"
+          :dir {:north :foyer
+                :south :forest}
+          :contents #{:fresh-fish}}
+  :forest {:desc "A weird forest underground. Something is moving inside because I can hear the sound."
+          :title "in the forest"
+          :dir {:north :underground-lake
+                :east :overpalace}
+          :contents #{}}
+  :overpalace {:desc "A palace full of the over"
+          :title "in the overpalace"
+          :dir {:west :forest
+                :east :arena}
+          :contents #{}}
+  :arena {:desc "An ancient arena. Dont know the purpose of building it."
+          :title "in the arena"
+          :dir {:west :overpalace
+                :north :corridor}
+          :contents #{}}
+  :corridor {:desc "A corridor full of rooms. Seems to be the dinning room of slave in the past."
+          :title "in the corridor"
+          :dir {:south :arena
+                :north :throne-room}
+          :contents #{}}
+  :throne-room {:desc "A room of throne."
+          :title "in front of the throne"
+          :dir {:south :corridor
+                :east :buril-hall}
+          :contents  #{}}
+  :buril-hall {:desc "Room full of money."
+          :title "in the buril-hall"
+          :dir {:west :throne-room}
+          :contents #{:ultimate-gem}}
+})
+
+
+(def items-list
+ {:raw-egg {:desc "This is a raw egg. You probably want to cook it before eating it."
+            :name "a raw egg"}
+  :fresh-fish {:desc "This is a fresh fish."
+            :name "a fresh fish"}
+  :baked-fish {:desc "This is a baked fish."
+            :name "a baked fish"}
+  :ultimate-gem {:desc "The ultimate gem."
+            :name "a ultimate gem"}
+})
+
+
+(def init-adventurer
+ {:location :gorgeous-arch
+  :inventory #{}
+  :hp 10
+  :lives 3
+  :tick 0
+  :seen #{}})
+
+
 (defn new-game []
-    (let [wumpus (rand-int maze-size)
-          bat1 (rand-unique maze-size #{wumpus})
-          bat2 (rand-unique maze-size #{wumpus bat1})
-          pit1 (rand-unique maze-size #{wumpus bat1 bat2})
-          pit2 (rand-unique maze-size #{wumpus bat1 bat2 pit1})
-          adv (rand-unique maze-size #{wumpus bat1 bat2 pit1 pit2})
-          ]
-        {:wumpus wumpus
-         :bat1 bat1 :bat2 bat2
-         :pit1 pit1 :pit2 pit2
-         :adventurer adv
-         :status :alive}))
+  {:rooms grave-maps
+   :items items-list
+   :adventurer init-adventurer})
+
+(defn status [state]
+  (let [location (get-in state [:adventurer :location])
+        rooms (:rooms state)]
+    (print (str "You are " (-> rooms location :title) "."))
+    (when-not ((get-in state [:adventurer :seen]) location)
+      (print (-> rooms location :desc)))
+    (update-in state [:adventurer :seen] #(conj % location))))
+
+
+(defn go [state dir]
+   (let [location (get-in state [:adventurer :location])
+         dest ((get-in state [:rooms location :dir]) dir)]
+     (if (nil? dest)
+       (do (println "You can't go that way.")
+           state)
+       (assoc-in state [:adventurer :location] dest))))
+
+
+(defn take-items [state]
+   (let [location (get-in state [:adventurer :location])
+         exist-items (get-in state [:rooms location :contents])
+         all-items (clojure.set/union exist-items (get-in state [:adventurer :inventory]))
+         prereturn (assoc-in state [:adventurer :inventory] all-items)]
+            (assoc-in prereturn [:rooms location :contents] #{})))
+
+(defn drop-items [state todrop]
+   (let [settodrop #{todrop}
+         current-inventory (get-in state [:adventurer :inventory])
+         removed-inventory (into #{} (remove settodrop current-inventory))
+         prereturn (assoc-in state [:adventurer :inventory] removed-inventory)
+         location (get-in state [:adventurer :location])
+         get-contents (clojure.set/union settodrop (get-in state [:rooms location :contents]))]
+            (assoc-in prereturn [:rooms location :contents] get-contents)))
+
+
 
 (defn move-wumpus [state]
     (println "The wumpus moves!")
@@ -130,4 +231,29 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (repl (new-game)))
+  (loop [state (status (new-game))]
+    (let [location (get-in state [:adventurer :location])
+         rooms (:rooms state)]
+         (do
+           (println "What do you want to do? ([M]ove/[L]ook/[C]heck/[Q]uit) ")
+         (let [choice (read-line)]
+            (cond (= choice "M")
+                  (do (println "Which direction (N, S, W, E)")
+                      (let [dirchoice (read-line)]
+                          (cond (= dirchoice "N")
+                            (recur (status (go state :north)))
+                                (= dirchoice "S")
+                            (recur (status (go state :south)))
+                                (= dirchoice "W")
+                            (recur (status (go state :west)))
+                                (= dirchoice "E")
+                            (recur (status (go state :east)))
+                                :else
+                            (do (println "Invalid input, go back")
+                                (recur state)))))
+                   (= choice "L")
+                   (do (println (get-in rooms [location :desc]))
+                       (recur state))
+                   (= choice "C")
+                   (do (run! println (get-in rooms [location :contents]))
+                       (recur state))))))))
