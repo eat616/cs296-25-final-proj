@@ -130,6 +130,9 @@
              false)
         false))
 
+
+
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -141,11 +144,13 @@
            (println "[M]ove: move to another room")
            (println "[L]ook: look around")
            (println "[C]heck: check the items around that you can take")
+           (println "[Ex]amine: look for the information of an item")
            (println "[I]nventory: check the inventory of my items")
            (println "[T]ake: take items around")
            (println "[D]rop: drop an items in inventory")
            (println "[Co]ok: cook the fish")
            (println "[E]scape: escape from the grave and win the game")
+           (println "[Q]uit: quit the game")
          (let [choice (read-line)]
             (cond (= choice "M")
                   (do (println "Which direction (N, S, W, E)")
@@ -183,4 +188,11 @@
                        (if (check-escape state)
                           (println "You successfully escape!, thanks for playing the game!")
                           (do (println "You do not meet the condition, keep working !")
-                              (recur state)))))))))
+                              (recur state)))
+                   (= choice "Ex")
+                   (do (println "Which item you want to look into?")
+                       (let [exkey (keyword (read-line))]
+                            (do (println (get-in state [:items exkey :desc]))
+                                (recur state))))
+                   (= choice "Q")
+                       (println "Thanks for playing!")))))))
