@@ -1,4 +1,5 @@
 (ns adventure.core
+  (require clojure.set)
   (:gen-class))
 
 (def maze {
@@ -133,6 +134,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 (defn move-wumpus [state]
     (println "The wumpus moves!")
     (let [new-loc ((-> :wumpus state maze) (rand-int 3))]
@@ -235,7 +245,13 @@
     (let [location (get-in state [:adventurer :location])
          rooms (:rooms state)]
          (do
-           (println "What do you want to do? ([M]ove/[L]ook/[C]heck/[Q]uit) ")
+           (println "What do you want to do?")
+           (println "[M]ove: move to another room")
+           (println "[L]ook: look around")
+           (println "[C]heck: check the items around that you can take")
+           (println "[I]nventory: check the inventory of my items")
+           (println "[T]ake: take items around")
+           (println "[D]rop: drop an items in inventory")
          (let [choice (read-line)]
             (cond (= choice "M")
                   (do (println "Which direction (N, S, W, E)")
@@ -256,4 +272,14 @@
                        (recur state))
                    (= choice "C")
                    (do (run! println (get-in rooms [location :contents]))
-                       (recur state))))))))
+                       (recur state))
+                   (= choice "I")
+                   (do (run! println (get-in state [:adventurer :inventory]))
+                       (recur state))
+                   (= choice "T")
+                   (do (println "You've taken up all the items around")
+                       (recur (take-items state)))
+                   (= choice "D")
+                   (do (println "Which item you want to drop")
+                       (let [dropkey (keyword (read-line))]
+                            (recur (drop-items state dropkey))))))))))
