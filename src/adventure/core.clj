@@ -8,46 +8,110 @@
  {:gorgeous-arch {:desc "This is a really gorgeous arch, possibly too gorgeous to be the entrance of a grave."
           :title "under the arch"
           :dir {:east :foyer}
-          :contents #{:raw-egg}}
+          :contents #{:raw-egg
+                      :ultimate-gem}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "|x| | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
   :foyer {:desc "A very luxurious foyer. We can convey that the owner is some kind of emperor. There's ladder to go down to somewhere."
           :title "in the foyer"
           :dir {:west :gorgeous-arch
                 :south :underground-lake}
-          :contents #{}}
+          :contents #{}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| |x| | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
   :underground-lake {:desc "Walking down the floor, we see a lake underground. I can see a huge shadow under the water."
           :title "in front of the lake"
           :dir {:north :foyer
                 :south :forest}
-          :contents #{:fresh-fish}}
+          :contents #{:fresh-fish}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  |x| | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
   :forest {:desc "A weird forest underground. Something is moving inside because I can hear the sound."
           :title "in the forest"
           :dir {:north :underground-lake
                 :east :overpalace}
-          :contents #{}}
+          :contents #{}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  |x| | |  "
+          :visualize-se "  +-+-+-+  "}
   :overpalace {:desc "A palace full of the over"
           :title "in the overpalace"
           :dir {:west :forest
                 :east :arena}
-          :contents #{}}
+          :contents #{}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | |x| |  "
+          :visualize-se "  +-+-+-+  "}
   :arena {:desc "An ancient arena. Dont know the purpose of building it."
           :title "in the arena"
           :dir {:west :overpalace
                 :north :corridor}
-          :contents #{}}
+          :contents #{}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | |x|  "
+          :visualize-se "  +-+-+-+  "}
   :corridor {:desc "A corridor full of rooms. Seems to be the dinning room of slave in the past."
           :title "in the corridor"
           :dir {:south :arena
                 :north :throne-room}
-          :contents #{}}
+          :contents #{}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | | |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | |x|  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
   :throne-room {:desc "A room of throne."
           :title "in front of the throne"
           :dir {:south :corridor
                 :east :buril-hall}
-          :contents  #{:rope}}
+          :contents  #{:rope}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | |x| |"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
   :buril-hall {:desc "Room full of money."
           :title "in the buril-hall"
           :dir {:west :throne-room}
-          :contents #{:ultimate-gem}}
+          :contents #{:ultimate-gem}
+          :visualize-on "+-+-+ +-+-+"
+          :visualize-tw "| | | | |x|"
+          :visualize-th "+-+-+ +-+-+"
+          :visualize-fo "  | | | |  "
+          :visualize-fi "  +-+-+-+  "
+          :visualize-si "  | | | |  "
+          :visualize-se "  +-+-+-+  "}
 })
 
 
@@ -82,9 +146,16 @@
 (defn status [state]
   (let [location (get-in state [:adventurer :location])
         rooms (:rooms state)]
-    (print (str "You are " (-> rooms location :title) "."))
+    (do (println (str "You are " (-> rooms location :title) "."))
+        (println (-> rooms location :visualize-on))
+        (println (-> rooms location :visualize-tw))
+        (println (-> rooms location :visualize-th))
+        (println (-> rooms location :visualize-fo))
+        (println (-> rooms location :visualize-fi))
+        (println (-> rooms location :visualize-si))
+        (println (-> rooms location :visualize-se)))
     (when-not ((get-in state [:adventurer :seen]) location)
-      (print (-> rooms location :desc)))
+        (println (-> rooms location :desc)))
     (update-in state [:adventurer :seen] #(conj % location))))
 
 
@@ -105,13 +176,29 @@
             (assoc-in prereturn [:rooms location :contents] #{})))
 
 (defn drop-items [state todrop]
-   (let [settodrop #{todrop}
-         current-inventory (get-in state [:adventurer :inventory])
-         removed-inventory (into #{} (remove settodrop current-inventory))
-         prereturn (assoc-in state [:adventurer :inventory] removed-inventory)
-         location (get-in state [:adventurer :location])
-         get-contents (clojure.set/union settodrop (get-in state [:rooms location :contents]))]
-            (assoc-in prereturn [:rooms location :contents] get-contents)))
+   (if (contains? (get-in state [:adventurer :inventory]) todrop)
+       (let [settodrop #{todrop}
+            current-inventory (get-in state [:adventurer :inventory])
+            removed-inventory (into #{} (remove settodrop current-inventory))
+            prereturn (assoc-in state [:adventurer :inventory] removed-inventory)
+            location (get-in state [:adventurer :location])
+            get-contents (clojure.set/union settodrop (get-in state [:rooms location :contents]))]
+                (assoc-in prereturn [:rooms location :contents] get-contents))
+        (do (println "You do not have such item!")
+            state)))
+
+
+(defn take-single-item [state totake]
+   (let [location (get-in state [:adventurer :location])]
+      (if (contains? (get-in state [:rooms location :contents]) totake)
+          (let [settotake #{totake}
+                current-inventory (get-in state [:adventurer :inventory])
+                merged-inventory (clojure.set/union settotake current-inventory)
+                removed-contents (into #{} (remove settotake (get-in state [:rooms location :contents])))
+                prereturn (assoc-in state [:adventurer :inventory] merged-inventory)]
+                (assoc-in prereturn [:rooms location :contents] removed-contents))
+          (do (println "There's no such item around!")
+              state))))
 
 
 (defn cook [state]
@@ -147,6 +234,7 @@
            (println "[Ex]amine: look for the information of an item")
            (println "[I]nventory: check the inventory of my items")
            (println "[T]ake: take items around")
+           (println "[Ta]ke-single: take specific item")
            (println "[D]rop: drop an items in inventory")
            (println "[Co]ok: cook the fish")
            (println "[E]scape: escape from the grave and win the game")
@@ -196,6 +284,10 @@
                                 (recur state))))
                    (= choice "Q")
                        (println "Thanks for playing!")
+                   (= choice "Ta")
+                   (do (println "Which item you want to take up")
+                       (let [takekey (keyword (read-line))]
+                            (recur (take-single-item state takekey))))
                    :else
                        (do (println "Invalid input, go back")
                            (recur state))))))))
