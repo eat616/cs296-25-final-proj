@@ -8,8 +8,7 @@
  {:gorgeous-arch {:desc "This is a really gorgeous arch, possibly too gorgeous to be the entrance of a grave."
           :title "under the arch"
           :dir {:east :foyer}
-          :contents #{:raw-egg
-                      :ultimate-gem}
+          :contents #{:raw-egg}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "|x| | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -234,7 +233,7 @@
            (println "[Ex]amine: look for the information of an item")
            (println "[I]nventory: check the inventory of my items")
            (println "[T]ake: take items around")
-           (println "[Ta]ke-single: take specific item")
+           (println "[Ta]ke-single: take a specific item")
            (println "[D]rop: drop an items in inventory")
            (println "[Co]ok: cook the fish")
            (println "[E]scape: escape from the grave and win the game")
