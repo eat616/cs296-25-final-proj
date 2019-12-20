@@ -68,7 +68,7 @@
           :title "in the arena"
           :dir {:west :overpalace
                 :north :corridor}
-          :contents #{}
+          :contents #{:chest}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -80,7 +80,7 @@
           :title "in the corridor"
           :dir {:south :arena
                 :north :throne-room}
-          :contents #{}
+          :contents #{:ring-shape-key}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -92,7 +92,7 @@
           :title "in front of the throne"
           :dir {:south :corridor
                 :east :buril-hall}
-          :contents  #{:rope}
+          :contents  #{:square-shape-key}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | |x| |"
           :visualize-th "+-+-+ +-+-+"
@@ -103,7 +103,7 @@
   :buril-hall {:desc "Room full of money."
           :title "in the buril-hall"
           :dir {:west :throne-room}
-          :contents #{:ultimate-gem}
+          :contents #{:flawed-gem}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | |x|"
           :visualize-th "+-+-+ +-+-+"
@@ -125,6 +125,14 @@
             :name "a ultimate gem"}
   :rope {:desc "A rope to escape."
             :name "a rope"}
+  :chest {:desc "ancient chest"
+            :name "chest"}
+  :ring-shape-key {:desc "a key that looks like a ring"
+            :name "ring shape key"}
+  :square-shape-key {:desc "a key in square shape"
+            :name "square shape key"}
+  :flawed-gem {:desc "a gem with flaw"
+            :name "flawed gem"}
 })
 
 
@@ -239,7 +247,25 @@
              false)
         false))
 
-
+(defn unlock-chest [state]
+    (let [current-inventory (get-in state [:adventurer :inventory])]
+        (if (contains? current-inventory :chest)
+            (if (contains? current-inventory :ring-shape-key)
+                (let [remove-key (into #{} (remove #{:ring-shape-key} current-inventory))
+                      remove-key-chest (into #{} (remove #{:chest} remove-key))
+                      add-rope (clojure.set/union #{:rope} remove-key-chest)]
+                        (do (println " ")
+                            (println "Unlock successfully! You now have a rope! Seems like it can be used to escape")
+                            (println " ")
+                            (assoc-in state [:adventurer :inventory] add-rope)))
+                (do (println " ")
+                    (println "You do not have the right key!")
+                    (println " ")
+                    state))
+            (do (println " ")
+                (println "You do not have the chest!")
+                (println " ")
+                state))))
 
 
 (defn -main
@@ -259,22 +285,23 @@
            (println "-take-specific: take a specific item (example: to take :raw-egg, just type in raw-egg)")
            (println "-drop: drop an item in inventory (example: to drop :raw-egg, just type in raw-egg)")
            (println "-cook: cook the fish")
+           (println "-unlock: unlock the chest to see what's inside")
            (println "-escape: escape from the grave and win the game")
            (println "-quit: quit the game")
            (println " ")
          (let [choice (read-line)]
             (cond (= choice "move")
                   (do (println " ")
-                      (println "Which direction (N, S, W, E)")
+                      (println "Enter a canonical direction (example: n, N, north, go north)")
                       (println " ")
                       (let [dirchoice (read-line)]
-                          (cond (= dirchoice "N")
+                          (cond (or (or (or (= dirchoice "N") (= dirchoice "n")) (= dirchoice "north")) (= dirchoice "go north"))
                             (recur (status (go state :north)))
-                                (= dirchoice "S")
+                                (or (or (or (= dirchoice "S") (= dirchoice "s")) (= dirchoice "south")) (= dirchoice "go south"))
                             (recur (status (go state :south)))
-                                (= dirchoice "W")
+                                (or (or (or (= dirchoice "W") (= dirchoice "w")) (= dirchoice "west")) (= dirchoice "go west"))
                             (recur (status (go state :west)))
-                                (= dirchoice "E")
+                                (or (or (or (= dirchoice "E") (= dirchoice "e")) (= dirchoice "east")) (= dirchoice "go east"))
                             (recur (status (go state :east)))
                                 :else
                             (do (println " ")
@@ -313,6 +340,8 @@
                             (recur (drop-items state dropkey))))
                    (= choice "cook")
                        (recur (cook state))
+                   (= choice "unlock")
+                       (recur (unlock-chest state))
                    (= choice "escape")
                        (if (check-escape state)
                           (println "You successfully escape!, thanks for playing the game!")
