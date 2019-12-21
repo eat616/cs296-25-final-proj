@@ -284,6 +284,36 @@
                 state))))
 
 
+(defn eat [state toeat]
+  (let [current-inventory (get-in state [:adventurer :inventory])]
+      (if (contains? current-inventory toeat)
+          (cond (or (= toeat :baked-egg) (= toeat :baked-fish))
+                (do (println " ")
+                    (println "it's delicous, you feel energetic!")
+                    (println " ")
+                    (let [current-hp (get-in state [:adventurer :hp])]
+                         (assoc-in state [:adventurer :hp] (+ current-hp 5))))
+                :else
+                (do (println " ")
+                    (println "You shouldn't eat this!!!!")
+                    (println " ")
+                    (let [current-hp (get-in state [:adventurer :hp])
+                          current-lives (get-in state [:adventurer :lives])
+                          decreased-hp (- current-hp 6)
+                          decreased-hpt (if (< decreased-hp 0) 10 decreased-hp)
+                          decreased-lives (if (< decreased-hp 0) (- current-lives 1) current-lives)
+                          decreased-hp-return (assoc-in state [:adventurer :hp] decreased-hpt)
+                          decreased-lives-return (assoc-in decreased-hp-return [:adventurer :lives] decreased-lives)]
+                              (if (< decreased-lives 0)
+                                  1
+                                  decreased-lives-return))))
+           (do (println " ")
+               (println "You do not have such item!")
+               (println " ")
+               state))))
+
+
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -295,6 +325,7 @@
            (println "-move: move to another room")
            (println "-look: look around")
            (println "-check: check the items around that you can take")
+           (println "-lifestat: check your life stat (# of lives, hp)")
            (println "-examine: show information of items (example: to examine raw-egg, just type in raw-egg)")
            (println "-inventory: check the inventory")
            (println "-take: take all the items around")
@@ -302,6 +333,7 @@
            (println "-drop: drop an item in inventory (example: to drop :raw-egg, just type in raw-egg)")
            (println "-cookfish: cook the fish")
            (println "-cookegg: cook the egg")
+           (println "-eat: eat something")
            (println "-unlock: unlock the chest to see what's inside")
            (println "-escape: escape from the grave and win the game")
            (println "-quit: quit the game")
@@ -337,6 +369,15 @@
                        (println "-----------")
                        (println " ")
                        (recur state))
+                   (= choice "lifestat")
+                   (do (println " ")
+                       (println "number of lives:")
+                       (println (get-in state [:adventurer :lives]))
+                       (println " ")
+                       (println "hp:")
+                       (println (get-in state [:adventurer :hp]))
+                       (println " ")
+                       (recur state))
                    (= choice "inventory")
                    (do (println " ")
                        (println "-----------")
@@ -359,6 +400,17 @@
                        (recur (cook-fish state))
                    (= choice "cookegg")
                        (recur (cook-egg state))
+                   (= choice "eat")
+                       (do (println " ")
+                           (println "What do you want to eat?")
+                           (println " ")
+                           (let [eatkey (keyword (read-line))
+                                 eatresult (eat state eatkey)]
+                                 (if (= eatresult 1)
+                                     (do (println " ")
+                                         (println "You Died!")
+                                         (println " "))
+                                     (recur eatresult))))
                    (= choice "unlock")
                        (recur (unlock-chest state))
                    (= choice "escape")
