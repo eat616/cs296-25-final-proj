@@ -5,7 +5,7 @@
 
 
 (def grave-maps
- {:gorgeous-arch {:desc "This is a really gorgeous arch, possibly too gorgeous to be the entrance of a grave."
+ {:gorgeous-arch {:desc "The entrance of a huge palace that seems to exist since ancient time. But how is it possible to build such a palace underground?"
           :title "under the arch"
           :dir {:east :foyer}
           :contents #{:raw-egg}
@@ -16,7 +16,7 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | | |  "
           :visualize-se "  +-+-+-+  "}
-  :foyer {:desc "A very luxurious foyer. We can convey that the owner is some kind of emperor. There's ladder to go down to somewhere."
+  :foyer {:desc "A very luxurious and majestic foyer. The owner must be some kind of emperor in the past."
           :title "in the foyer"
           :dir {:west :gorgeous-arch
                 :south :underground-lake}
@@ -28,7 +28,7 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | | |  "
           :visualize-se "  +-+-+-+  "}
-  :underground-lake {:desc "Walking down the floor, we see a lake underground. I can see a huge shadow under the water."
+  :underground-lake {:desc "An underground lake. Something is moving fastly inside."
           :title "in front of the lake"
           :dir {:north :foyer
                 :south :forest}
@@ -52,8 +52,8 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  |x| | |  "
           :visualize-se "  +-+-+-+  "}
-  :overpalace {:desc "A palace full of the over"
-          :title "in the overpalace"
+  :overpalace {:desc "A room full of skulls. Maybe the palace is actually a grave."
+          :title "in the skulls' room"
           :dir {:west :forest
                 :east :arena}
           :contents #{}
@@ -64,7 +64,7 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | |x| |  "
           :visualize-se "  +-+-+-+  "}
-  :arena {:desc "An ancient arena. Dont know the purpose of building it."
+  :arena {:desc "An ancient arena inside the palace. As uncanny as the palace itself."
           :title "in the arena"
           :dir {:west :overpalace
                 :north :corridor}
@@ -76,7 +76,7 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | |x|  "
           :visualize-se "  +-+-+-+  "}
-  :corridor {:desc "A corridor full of rooms. Seems to be the dinning room of slave in the past."
+  :corridor {:desc "A corridor with rooms on both sides. People living in them in ancient time. Possibly they are the rooms for maid."
           :title "in the corridor"
           :dir {:south :arena
                 :north :throne-room}
@@ -88,7 +88,7 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | | |  "
           :visualize-se "  +-+-+-+  "}
-  :throne-room {:desc "A room of throne."
+  :throne-room {:desc "Cross the corridor I see the throne. This should be the center of the palace."
           :title "in front of the throne"
           :dir {:south :corridor
                 :east :buril-hall}
@@ -100,8 +100,8 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | | |  "
           :visualize-se "  +-+-+-+  "}
-  :buril-hall {:desc "Room full of money."
-          :title "in the buril-hall"
+  :buril-hall {:desc "A tunnel made by grave hobber. I can hear people talking outside. Use a rope can possibly get me out of here."
+          :title "in the tunnel"
           :dir {:west :throne-room}
           :contents #{:flawed-gem}
           :visualize-on "+-+-+ +-+-+"
@@ -117,9 +117,11 @@
 (def items-list
  {:raw-egg {:desc "This is a raw egg. You probably want to cook it before eating it."
             :name "a raw egg"}
-  :fresh-fish {:desc "This is a fresh fish."
+  :baked-egg {:desc "This is a baked egg. Can be eaten."
+            :name "a baked egg"}
+  :fresh-fish {:desc "This is a fresh fish. You probably want to cook it before eating it."
             :name "a fresh fish"}
-  :baked-fish {:desc "This is a baked fish."
+  :baked-fish {:desc "This is a baked fish. Can be eaten."
             :name "a baked fish"}
   :ultimate-gem {:desc "The ultimate gem."
             :name "a ultimate gem"}
@@ -226,10 +228,10 @@
               state))))
 
 
-(defn cook [state]
+(defn cook-fish [state]
    (if (contains? (get-in state [:adventurer :inventory]) :fresh-fish)
        (do (println " ")
-           (println "fresh-fish now becomes baked-fish!")
+           (println "fresh fish now becomes baked fish!")
            (println " ")
            (let [current-inventory (get-in state [:adventurer :inventory])
              removed-inventory (into #{} (remove #{:fresh-fish} current-inventory))
@@ -239,6 +241,20 @@
             (println "You do not have fresh-fish!")
             (println " ")
             state)))
+
+(defn cook-egg [state]
+   (if (contains? (get-in state [:adventurer :inventory]) :raw-egg)
+       (do (println " ")
+           (println "raw egg now becomes baked egg!")
+           (println " ")
+           (let [current-inventory (get-in state [:adventurer :inventory])
+             removed-inventory (into #{} (remove #{:raw-egg} current-inventory))
+             cooked-inventory (clojure.set/union #{:baked-egg} removed-inventory)]
+              (assoc-in state [:adventurer :inventory] cooked-inventory)))
+       (do (println " ")
+           (println "You do not have raw egg!")
+           (println " ")
+           state)))
 
 (defn check-escape [state]
     (if (contains? (get-in state [:adventurer :inventory]) :rope)
@@ -284,7 +300,8 @@
            (println "-take: take all the items around")
            (println "-take-specific: take a specific item (example: to take :raw-egg, just type in raw-egg)")
            (println "-drop: drop an item in inventory (example: to drop :raw-egg, just type in raw-egg)")
-           (println "-cook: cook the fish")
+           (println "-cookfish: cook the fish")
+           (println "-cookegg: cook the egg")
            (println "-unlock: unlock the chest to see what's inside")
            (println "-escape: escape from the grave and win the game")
            (println "-quit: quit the game")
@@ -338,8 +355,10 @@
                        (println " ")
                        (let [dropkey (keyword (read-line))]
                             (recur (drop-items state dropkey))))
-                   (= choice "cook")
-                       (recur (cook state))
+                   (= choice "cookfish")
+                       (recur (cook-fish state))
+                   (= choice "cookegg")
+                       (recur (cook-egg state))
                    (= choice "unlock")
                        (recur (unlock-chest state))
                    (= choice "escape")
