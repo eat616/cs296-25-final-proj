@@ -349,7 +349,7 @@
            (println "-cookegg: cook the egg")
            (println "-eat: eat something")
            (println "-unlock: unlock the chest to see what's inside")
-           (println "-escape: escape from the grave and win the game")
+           (println "-escape: escape from the grave and win the game (you will need a rope and be at the grave robber's tunnel)")
            (println "-quit: quit the game")
            (println " ")
          (let [choice (read-line)]
