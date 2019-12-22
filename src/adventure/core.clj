@@ -291,8 +291,11 @@
                 (do (println " ")
                     (println "it's delicous, you feel energetic!")
                     (println " ")
-                    (let [current-hp (get-in state [:adventurer :hp])]
-                         (assoc-in state [:adventurer :hp] (+ current-hp 5))))
+                    (let [current-hp (get-in state [:adventurer :hp])
+                          hp-added (assoc-in state [:adventurer :hp] (+ current-hp 5))
+                          remove-eat (into #{} (remove #{toeat} current-inventory))
+                          to-return (assoc-in hp-added [:adventurer :inventory] remove-eat)]
+                            to-return))
                 :else
                 (do (println " ")
                     (println "You shouldn't eat this!!!!")
@@ -303,10 +306,12 @@
                           decreased-hpt (if (< decreased-hp 0) 10 decreased-hp)
                           decreased-lives (if (< decreased-hp 0) (- current-lives 1) current-lives)
                           decreased-hp-return (assoc-in state [:adventurer :hp] decreased-hpt)
-                          decreased-lives-return (assoc-in decreased-hp-return [:adventurer :lives] decreased-lives)]
+                          decreased-lives-return (assoc-in decreased-hp-return [:adventurer :lives] decreased-lives)
+                          remove-eat (into #{} (remove #{toeat} current-inventory))
+                          to-return (assoc-in decreased-lives-return [:adventurer :inventory] remove-eat)]
                               (if (< decreased-lives 0)
                                   1
-                                  decreased-lives-return))))
+                                  to-return))))
            (do (println " ")
                (println "You do not have such item!")
                (println " ")
