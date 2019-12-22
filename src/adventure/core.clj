@@ -5,7 +5,7 @@
 
 
 (def grave-maps
- {:gorgeous-arch {:desc "The entrance of a huge palace that seems to exist since ancient time. But how is it possible to build such a palace underground?"
+ {:gorgeous-arch {:desc "The entrance of a huge palace that seems to exist since ancient time. But how is it possible to build such a palace underground? How can I escape?"
           :title "under the arch"
           :dir {:east :foyer}
           :contents #{:raw-egg}
@@ -20,7 +20,7 @@
           :title "in the foyer"
           :dir {:west :gorgeous-arch
                 :south :underground-lake}
-          :contents #{}
+          :contents #{:hat}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| |x| | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -44,7 +44,7 @@
           :title "in the forest"
           :dir {:north :underground-lake
                 :east :overpalace}
-          :contents #{}
+          :contents #{:shoes}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -56,7 +56,7 @@
           :title "in the skulls' room"
           :dir {:west :forest
                 :east :arena}
-          :contents #{}
+          :contents #{:skullhead}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -80,7 +80,7 @@
           :title "in the corridor"
           :dir {:south :arena
                 :north :throne-room}
-          :contents #{:ring-shape-key}
+          :contents #{:triangle-shape-key}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | | |"
           :visualize-th "+-+-+ +-+-+"
@@ -100,10 +100,11 @@
           :visualize-fi "  +-+-+-+  "
           :visualize-si "  | | | |  "
           :visualize-se "  +-+-+-+  "}
-  :buril-hall {:desc "A tunnel made by grave hobber. I can hear people talking outside. Use a rope can possibly get me out of here."
+  :buril-hall {:desc "A tunnel made by grave robber. I can hear people talking outside. Use a rope can possibly get me out of here."
           :title "in the tunnel"
           :dir {:west :throne-room}
-          :contents #{:flawed-gem}
+          :contents #{:flawed-gem
+                      :ring-shape-key}
           :visualize-on "+-+-+ +-+-+"
           :visualize-tw "| | | | |x|"
           :visualize-th "+-+-+ +-+-+"
@@ -115,26 +116,34 @@
 
 
 (def items-list
- {:raw-egg {:desc "This is a raw egg. You probably want to cook it before eating it."
+ {:raw-egg {:desc "This is a raw egg. You probably want to cook it before eating it, or you will be hurt."
             :name "a raw egg"}
-  :baked-egg {:desc "This is a baked egg. Can be eaten."
+  :baked-egg {:desc "This is a baked egg. It can be eaten to make you energetic again."
             :name "a baked egg"}
-  :fresh-fish {:desc "This is a fresh fish. You probably want to cook it before eating it."
+  :fresh-fish {:desc "This is a fresh fish. You probably want to cook it before eating it, or you will be hurt."
             :name "a fresh fish"}
-  :baked-fish {:desc "This is a baked fish. Can be eaten."
+  :baked-fish {:desc "This is a baked fish. It can be eaten to make you energetic again."
             :name "a baked fish"}
-  :ultimate-gem {:desc "The ultimate gem."
+  :ultimate-gem {:desc "This is the ultimate gem. It contains a huge amount of magic power"
             :name "a ultimate gem"}
-  :rope {:desc "A rope to escape."
+  :rope {:desc "This is a long rope. You can probably use it to escape from here."
             :name "a rope"}
-  :chest {:desc "ancient chest"
-            :name "chest"}
-  :ring-shape-key {:desc "a key that looks like a ring"
-            :name "ring shape key"}
-  :square-shape-key {:desc "a key in square shape"
-            :name "square shape key"}
-  :flawed-gem {:desc "a gem with flaw"
-            :name "flawed gem"}
+  :chest {:desc "A chest from ancient time. Nobody knows what's inside. There is a ring-shape keyhole on it, a key in this shape might help."
+            :name "a chest"}
+  :ring-shape-key {:desc "This is a key that looks like a ring. It can be used to unlock something."
+            :name "a ring shape key"}
+  :square-shape-key {:desc "This is a key in square shape. It can be used to unlock something."
+            :name "a square shape key"}
+  :flawed-gem {:desc "This is a gem with flaw. Magic power are leaking out of it."
+            :name "a flawed gem"}
+  :triangle-shape-key {:desc "This is a key in triangle shape. It can be used to unlock something."
+            :name "a triangle shape key"}
+  :hat {:desc "This is a hat. It should be really cheap. So it might be left by some grave robbers."
+            :name "a hat"}
+  :shoes {:desc "This is a pair of shoes. It should be really cheap. So it might be left by some grave robbers."
+            :name "a pair of shoes"}
+  :skullhead {:desc "This is a skullhead. Its owner died thousands of years ago."
+            :name "a skullhead"}
 })
 
 
